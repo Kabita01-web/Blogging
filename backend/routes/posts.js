@@ -1,25 +1,21 @@
 import express from "express";
-
-const express = require("express");
-const router = express.Router();
-const {
+import { protect } from "../middleware/auth.js";
+import {
   createPost,
   getPosts,
-  getPostById,
+  getPost,
   updatePost,
   deletePost,
-  getUserPosts,
-} = require("../controllers/postController");
-const auth = require("../middleware/auth");
+} from "../controllers/postController.js";
 
-// Public routes
-router.get("/", getPosts);
-router.get("/:id", getPostById);
+const router = express.Router();
 
-// Protected routes
-router.post("/", auth, createPost);
-router.put("/:id", auth, updatePost);
-router.delete("/:id", auth, deletePost);
-router.get("/user/me", auth, getUserPosts);
+router.route("/").get(getPosts).post(protect, createPost);
 
-module.exports = router;
+router
+  .route("/:id")
+  .get(getPost)
+  .put(protect, updatePost)
+  .delete(protect, deletePost);
+
+export default router;

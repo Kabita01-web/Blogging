@@ -70,6 +70,12 @@ export const login = async (req, res) => {
   }
 };
 
+export const logout = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully. Please remove the token from client.",
+  });
+};
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
