@@ -6,6 +6,7 @@ import {
   getPost,
   updatePost,
   deletePost,
+  getMyPosts,
 } from "../controllers/postController.js";
 
 const router = express.Router();
@@ -17,5 +18,7 @@ router
   .get(getPost)
   .put(protect, updatePost)
   .delete(protect, deletePost);
+
+router.get("/user/me", protect, getMyPosts);
 
 export default router;

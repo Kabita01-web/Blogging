@@ -91,3 +91,19 @@ export const deletePost = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+export const getMyPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ author: req.user.id })
+      .populate("author", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: posts.length,
+      data: posts,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
