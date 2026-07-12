@@ -1,160 +1,216 @@
-import { useState } from "react";
-import { Search, PenLine, Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
-/**
- * Navbar
- * Top-level navigation for the blogging site.
- * Composed of three static sub-sections (Logo, SearchBar, AuthActions)
- * plus one dynamic piece of state: whether the mobile menu is open.
- */
 export default function Navbar() {
-  // Dynamic state: controls the mobile menu's open/closed state only.
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <nav
-        aria-label="Main navigation"
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"
-      >
-        <Logo />
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      setUser(userData);
+    }
+  }, []);
 
-        {/* Search bar: hidden on small screens, shown from md breakpoint up */}
-        <div className="hidden flex-1 justify-center md:flex">
-          <SearchBar />
-        </div>
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-        {/* Desktop actions: hidden below md, shown from md up */}
-        <div className="hidden items-center gap-2 md:flex">
-          <AuthActions />
-        </div>
-
-        {/* Mobile menu toggle: only visible below md breakpoint */}
-        <button
-          type="button"
-          onClick={() => setIsMenuOpen((open) => !open)}
-          aria-expanded={isMenuOpen}
-          aria-controls="mobile-menu"
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className="inline-flex items-center justify-center rounded-md p-2 text-slate-700 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 md:hidden"
-        >
-          {isMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
-      </nav>
-
-      {/* Mobile panel: search + actions, only rendered when menu is open */}
-      {isMenuOpen && (
-        <div
-          id="mobile-menu"
-          className="space-y-4 border-t border-slate-200 px-4 py-4 md:hidden"
-        >
-          <SearchBar />
-          <div className="flex flex-col gap-2">
-            <AuthActions stacked />
-          </div>
-        </div>
-      )}
-    </header>
-  );
-}
-
-/**
- * Logo
- * Static brand mark. Replace the text/link with your site's actual name and route.
- */
-function Logo() {
-  return (
-    <a
-      href="/"
-      className="flex shrink-0 items-center gap-2 text-xl font-semibold tracking-tight text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 rounded-md"
-    >
-      <span className="flex h-8 w-8 items-center justify-center rounded-md bg-indigo-600 text-white">
-        <PenLine className="h-4 w-4" />
-      </span>
-      <span>BlogNest</span>
-    </a>
-  );
-}
-
-/**
- * SearchBar
- * Dynamic input for content discovery. Holds its own local state for the
- * query text; wire handleSubmit up to your routing/search logic.
- */
-function SearchBar() {
-  const [query, setQuery] = useState("");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    // Replace with real navigation, e.g. navigate(`/search?q=${encodeURIComponent(query)}`)
-    console.log("Searching for:", query);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/");
   };
 
+  const initials = (name = "") =>
+    name
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?";
+
+  const navLinkClass = ({ isActive }) =>
+    `font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase transition-colors pb-1 border-b ${
+      isActive
+        ? "text-indigo-700 border-indigo-700"
+        : "text-stone-500 border-transparent hover:text-stone-900 hover:border-stone-300"
+    }`;
+
   return (
-    <form role="search" onSubmit={handleSubmit} className="w-full max-w-md">
-      <label htmlFor="site-search" className="sr-only">
-        Search articles
-      </label>
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-          aria-hidden="true"
-        />
-        <input
-          id="site-search"
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search articles..."
-          className="w-full rounded-full border border-slate-200 bg-slate-50 py-2 pl-9 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-        />
+    <nav
+      className={`bg-stone-50/90 backdrop-blur sticky top-0 z-50 border-b transition-shadow ${
+        scrolled
+          ? "border-stone-300 shadow-[0_1px_0_0_rgba(28,25,23,0.04)]"
+          : "border-stone-200"
+      }`}
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="group flex items-baseline gap-2">
+            <span className="font-['Zilla_Slab'] text-2xl font-semibold text-stone-900 group-hover:text-indigo-700 transition-colors">
+              Scribble
+            </span>
+            <span className="hidden sm:inline font-['IBM_Plex_Mono'] text-[10px] tracking-[0.2em] uppercase text-stone-400">
+              Est. 2026
+            </span>
+          </Link>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-7">
+            <NavLink to="/" end className={navLinkClass}>
+              Home
+            </NavLink>
+
+            {user ? (
+              <>
+                <NavLink to="/dashboard" className={navLinkClass}>
+                  Dashboard
+                </NavLink>
+                <Link
+                  to="/create"
+                  className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase bg-stone-900 hover:bg-indigo-700 text-stone-50 px-4 py-2 transition-colors"
+                >
+                  Write
+                </Link>
+                <div className="flex items-center gap-3 pl-3 ml-1 border-l border-stone-200">
+                  <div
+                    className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[11px] font-['IBM_Plex_Mono'] font-semibold shrink-0"
+                    title={user.name}
+                  >
+                    {initials(user.name)}
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-stone-400 hover:text-red-700 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <NavLink to="/login" className={navLinkClass}>
+                  Login
+                </NavLink>
+                <Link
+                  to="/register"
+                  className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase bg-stone-900 hover:bg-indigo-700 text-stone-50 px-4 py-2 transition-colors"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
+            className="md:hidden text-stone-600 hover:text-stone-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-sm p-1"
+          >
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        <div
+          className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out ${
+            isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="flex flex-col space-y-1 py-4 border-t border-stone-200">
+            <Link
+              to="/"
+              className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-stone-600 hover:text-indigo-700 transition-colors py-2"
+              onClick={() => setIsOpen(false)}
+            >
+              Home
+            </Link>
+            {user ? (
+              <>
+                <div className="flex items-center gap-2 py-2">
+                  <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-['IBM_Plex_Mono'] font-semibold">
+                    {initials(user.name)}
+                  </div>
+                  <span className="font-['IBM_Plex_Mono'] text-xs text-stone-500">
+                    {user.name}
+                  </span>
+                </div>
+                <Link
+                  to="/dashboard"
+                  className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-stone-600 hover:text-indigo-700 transition-colors py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/create"
+                  className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase bg-stone-900 text-stone-50 px-4 py-2.5 text-center transition-colors mt-1"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Write
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsOpen(false);
+                  }}
+                  className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-stone-400 hover:text-red-700 text-left transition-colors py-2"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-stone-600 hover:text-indigo-700 transition-colors py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase bg-stone-900 text-stone-50 px-4 py-2.5 text-center transition-colors mt-1"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-    </form>
-  );
-}
-
-/**
- * AuthActions
- * Static set of primary navigation buttons: Write, Login, Signup.
- * `stacked` switches the layout to full-width vertical buttons for the mobile menu.
- */
-function AuthActions({ stacked = false }) {
-  const layout = stacked
-    ? "flex flex-col gap-2 w-full"
-    : "flex items-center gap-2";
-
-  return (
-    <div className={layout}>
-      <a
-        href="/write"
-        className={`inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 ${
-          stacked ? "w-full" : ""
-        }`}
-      >
-        <PenLine className="h-4 w-4" />
-        Write
-      </a>
-      <a
-        href="/login"
-        className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 ${
-          stacked ? "w-full" : ""
-        }`}
-      >
-        Login
-      </a>
-      <a
-        href="/register"
-        className={`inline-flex items-center justify-center rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
-          stacked ? "w-full" : ""
-        }`}
-      >
-        Register
-      </a>
-    </div>
+    </nav>
   );
 }
