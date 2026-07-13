@@ -58,7 +58,7 @@ export const updatePost = async (req, res) => {
     }
 
     post = await Post.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     });
 
