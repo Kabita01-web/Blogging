@@ -1,17 +1,27 @@
-import { createContext, useState, useContext } from "react";
-import API from "../services/api";
+import { createContext, useState, useContext, useEffect } from "react";
+import api from "../services/api"; // ← Imports from services/api
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      setUser(userData);
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (email, password) => {
     try {
-      const res = await API.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      setUser(res.data.user);
+      const { data } = await api.post("/auth/login", { email, password }); // ← Uses api
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.response?.data?.message };
@@ -20,9 +30,14 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const res = await API.post("/auth/register", { name, email, password });
-      localStorage.setItem("token", res.data.token);
-      setUser(res.data.user);
+      const { data } = await api.post("/auth/register", {
+        name,
+        email,
+        password,
+      }); // ← Uses api
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.response?.data?.message };
@@ -31,6 +46,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
   };
 

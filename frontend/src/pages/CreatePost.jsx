@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import RichTextEditor from "../componets/RichTestEditor.jsx";
+import RichTextEditor from "../componets/RichTestEditor"; // ← Using RichTextEditor
 
 export default function CreatePost() {
   const navigate = useNavigate();

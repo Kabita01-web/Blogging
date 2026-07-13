@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState("");
+
+  // ✅ This is the missing handleChange function
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -48,19 +51,14 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const { data } = await api.post("/auth/login", {
-        email: form.email,
-        password: form.password,
-      });
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/");
+      const result = await login(form.email, form.password);
+      if (result.success) {
+        navigate("/");
+      } else {
+        setFormError(result.error || "Invalid credentials");
+      }
     } catch (err) {
-      setFormError(
-        err.response?.data?.message ||
-          err.message ||
-          "Something went wrong. Please try again.",
-      );
+      setFormError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

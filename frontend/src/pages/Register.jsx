@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -65,6 +66,7 @@ export default function Register() {
     return Object.values(next).every((msg) => !msg);
   };
 
+  // ✅ This is the handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
@@ -72,20 +74,14 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const { data } = await api.post("/auth/register", {
-        name: form.name,
-        email: form.email,
-        password: form.password,
-      });
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/");
+      const result = await register(form.name, form.email, form.password);
+      if (result.success) {
+        navigate("/");
+      } else {
+        setFormError(result.error || "Registration failed");
+      }
     } catch (err) {
-      setFormError(
-        err.response?.data?.message ||
-          err.message ||
-          "Something went wrong. Please try again.",
-      );
+      setFormError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -134,7 +130,7 @@ export default function Register() {
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition ${
                 errors.name ? "border-red-500" : "border-gray-300"
               }`}
-              placeholder="John Doe"
+              placeholder="Ada Lovelace"
               autoComplete="name"
             />
             {errors.name && (
