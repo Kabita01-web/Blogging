@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
-import RichTextEditor from "../componets/RichTestEditor"; // fixed: was ../componets/RichTestEditor
+import RichTextEditor from "../components/RichTextEditor";
 
 export default function EditPost() {
   const { id } = useParams();
@@ -25,7 +25,6 @@ export default function EditPost() {
 
   const isDirty = title !== original.title || content !== original.content;
 
-  // warn on tab close / refresh with unsaved changes
   useEffect(() => {
     const handler = (e) => {
       if (!isDirty) return;
@@ -36,7 +35,6 @@ export default function EditPost() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
 
-  // auto-grow the title textarea as the headline wraps
   useEffect(() => {
     if (titleRef.current) {
       titleRef.current.style.height = "auto";
@@ -89,52 +87,50 @@ export default function EditPost() {
     .split(/\s+/)
     .filter(Boolean).length;
 
-  // ---------- loading skeleton ----------
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-[var(--color-paper)]">
         <div className="max-w-4xl mx-auto px-6 py-14 animate-pulse">
-          <div className="border-b border-stone-300 pb-6 mb-8">
-            <div className="h-9 w-40 bg-stone-200 rounded" />
-            <div className="h-4 w-28 bg-stone-200 rounded mt-3" />
+          <div className="border-b border-[var(--color-rule)] pb-6 mb-8">
+            <div className="h-9 w-40 bg-[var(--color-indigo-soft)] rounded" />
+            <div className="h-4 w-28 bg-[var(--color-indigo-soft)] rounded mt-3" />
           </div>
-          <div className="h-12 w-3/4 bg-stone-200 rounded mb-8" />
+          <div className="h-12 w-3/4 bg-[var(--color-indigo-soft)] rounded mb-8" />
           <div className="space-y-3">
-            <div className="h-4 bg-stone-200 rounded" />
-            <div className="h-4 bg-stone-200 rounded w-11/12" />
-            <div className="h-4 bg-stone-200 rounded w-4/5" />
+            <div className="h-4 bg-[var(--color-indigo-soft)] rounded" />
+            <div className="h-4 bg-[var(--color-indigo-soft)] rounded w-11/12" />
+            <div className="h-4 bg-[var(--color-indigo-soft)] rounded w-4/5" />
           </div>
         </div>
       </div>
     );
   }
 
-  // ---------- load-failure empty state ----------
   if (loadError) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-[var(--color-paper)]">
         <div className="max-w-4xl mx-auto px-6 py-24 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-stone-300 mb-5">
-            <span className="font-['IBM_Plex_Mono'] text-stone-500 text-sm">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-[var(--color-rule)] mb-5">
+            <span className="font-[var(--font-mono)] text-[var(--color-muted)] text-sm">
               !
             </span>
           </div>
-          <h1 className="font-['Zilla_Slab'] text-2xl font-semibold text-stone-900 mb-2">
+          <h1 className="font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)] mb-2">
             This post couldn't be loaded
           </h1>
-          <p className="font-['Lora'] text-stone-500 mb-8">
+          <p className="font-[var(--font-body)] text-[var(--color-muted)] mb-8">
             It may have been removed, or the connection dropped.
           </p>
           <div className="flex gap-3 justify-center">
             <button
               onClick={fetchPost}
-              className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded transition"
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase bg-[var(--color-indigo)] hover:bg-[var(--color-indigo-bright)] text-white px-6 py-3 rounded-full transition-colors"
             >
               Try again
             </button>
             <button
               onClick={() => navigate("/")}
-              className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase border border-stone-400 text-stone-600 px-6 py-3 rounded hover:bg-stone-100 transition"
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase border border-[var(--color-rule)] text-[var(--color-ink)] px-6 py-3 rounded-full hover:bg-[var(--color-indigo-soft)] transition-colors"
             >
               Back home
             </button>
@@ -145,23 +141,23 @@ export default function EditPost() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      {/* sticky status bar */}
-      <div className="sticky top-0 z-10 bg-stone-50/90 backdrop-blur border-b border-stone-200">
+    <div className="bg-[var(--color-paper)]">
+      {/* status bar — sticky to the editor's scroll area, not the viewport */}
+      <div className="sticky top-16 z-10 bg-[var(--color-paper)]/90 backdrop-blur border-b border-[var(--color-rule)]">
         <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
           <button
             onClick={handleCancel}
-            className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-stone-500 hover:text-stone-900 transition"
+            className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors"
           >
             ← Back to post
           </button>
           <span
-            className={`font-['IBM_Plex_Mono'] text-[11px] tracking-[0.15em] uppercase ${
+            className={`font-[var(--font-mono)] text-[11px] tracking-[0.15em] uppercase ${
               saving
-                ? "text-indigo-600"
+                ? "text-[var(--color-indigo)]"
                 : isDirty
                   ? "text-amber-600"
-                  : "text-stone-400"
+                  : "text-[var(--color-muted)]"
             }`}
           >
             {saving ? "Saving…" : isDirty ? "Unsaved changes" : "Saved"}
@@ -169,19 +165,19 @@ export default function EditPost() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 pt-10 pb-32">
-        <div className="border-b border-stone-300 pb-6 mb-10">
-          <p className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-indigo-600 mb-1">
+      <div className="max-w-4xl mx-auto px-6 pt-10 pb-10">
+        <div className="border-b border-[var(--color-rule)] pb-6 mb-10">
+          <p className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-indigo)] mb-1">
             Editing
           </p>
-          <p className="font-['Lora'] italic text-stone-500">
+          <p className="font-[var(--font-body)] italic text-[var(--color-muted)]">
             Changes save only when you publish the update below
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           {formError && (
-            <div className="mb-8 px-4 py-3 bg-red-50 border border-red-200 text-red-700 font-['Lora'] text-sm rounded">
+            <div className="mb-8 px-4 py-3 bg-red-50 border border-red-200 text-red-700 font-[var(--font-body)] text-sm rounded-xl">
               {formError}
             </div>
           )}
@@ -193,7 +189,7 @@ export default function EditPost() {
             placeholder="Untitled"
             rows={1}
             required
-            className="w-full resize-none overflow-hidden bg-transparent outline-none font-['Zilla_Slab'] font-semibold text-4xl md:text-5xl text-stone-900 placeholder-stone-300 leading-tight mb-10"
+            className="w-full resize-none overflow-hidden bg-transparent outline-none font-[var(--font-display)] font-semibold text-4xl md:text-5xl text-[var(--color-ink)] placeholder-[var(--color-rule)] leading-tight mb-10"
           />
 
           <div className="mb-4">
@@ -204,31 +200,28 @@ export default function EditPost() {
             />
           </div>
 
-          <p className="font-['IBM_Plex_Mono'] text-[11px] tracking-[0.1em] text-stone-400 text-right">
+          <p className="font-[var(--font-mono)] text-[11px] tracking-[0.1em] text-[var(--color-muted)] text-right">
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </p>
-        </form>
-      </div>
 
-      {/* sticky footer action bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-stone-50/95 backdrop-blur border-t border-stone-200">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex gap-4">
-          <button
-            type="submit"
-            onClick={handleSubmit}
-            disabled={saving || !isDirty}
-            className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded transition disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {saving ? "Saving…" : "Update post"}
-          </button>
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase border border-stone-400 text-stone-600 px-6 py-3 rounded hover:bg-stone-100 transition"
-          >
-            Cancel
-          </button>
-        </div>
+          {/* action bar — normal flow, sits right after the editor, no overlap with Footer */}
+          <div className="flex gap-4 mt-10 pt-6 border-t border-[var(--color-rule)]">
+            <button
+              type="submit"
+              disabled={saving || !isDirty}
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase bg-[var(--color-indigo)] hover:bg-[var(--color-indigo-bright)] text-white px-6 py-3 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {saving ? "Saving…" : "Update post"}
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase border border-[var(--color-rule)] text-[var(--color-ink)] px-6 py-3 rounded-full hover:bg-[var(--color-indigo-soft)] transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

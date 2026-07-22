@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import RichTextEditor from "../componets/RichTestEditor"; // ← Using RichTextEditor
+import RichTextEditor from "../components/RichTextEditor";
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -10,8 +10,7 @@ export default function CreatePost() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (status) => {
     if (!title.trim() || !content.trim()) {
       setError("Title and content are required");
       return;
@@ -20,8 +19,8 @@ export default function CreatePost() {
     setLoading(true);
     setError("");
     try {
-      await api.post("/posts", { title, content });
-      navigate("/");
+      await api.post("/posts", { title, content, status });
+      navigate(status === "draft" ? "/dashboard" : "/");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create post");
     } finally {
@@ -30,26 +29,26 @@ export default function CreatePost() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-[var(--color-paper)]">
       <div className="max-w-4xl mx-auto px-6 py-14">
-        <div className="border-b border-stone-300 pb-6 mb-8">
-          <h1 className="font-['Zilla_Slab'] text-4xl font-semibold text-stone-900">
+        <div className="border-b border-[var(--color-rule)] pb-6 mb-8">
+          <h1 className="font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
             Write a new entry
           </h1>
-          <p className="font-['Lora'] italic text-stone-500 mt-1">
+          <p className="font-[var(--font-body)] italic text-[var(--color-muted)] mt-1">
             Share your thoughts with the world
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl font-[var(--font-body)]">
               {error}
             </div>
           )}
 
           <div className="mb-6">
-            <label className="block font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-stone-500 mb-2">
+            <label className="block font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] mb-2">
               Title
             </label>
             <input
@@ -57,13 +56,13 @@ export default function CreatePost() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Give your post a title..."
-              className="w-full px-4 py-3 border border-stone-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-lg font-['Zilla_Slab']"
+              className="w-full px-4 py-3 border border-[var(--color-rule)] bg-white/50 rounded-xl focus:ring-2 focus:ring-[var(--color-indigo-soft)] focus:border-[var(--color-indigo)] outline-none text-lg font-[var(--font-display)] transition-colors"
               required
             />
           </div>
 
           <div className="mb-6">
-            <label className="block font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase text-stone-500 mb-2">
+            <label className="block font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] mb-2">
               Content
             </label>
             <RichTextEditor
@@ -73,18 +72,27 @@ export default function CreatePost() {
             />
           </div>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-3 pt-4">
             <button
-              type="submit"
+              type="button"
+              onClick={() => handleSubmit("published")}
               disabled={loading}
-              className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded transition disabled:opacity-50"
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase bg-[var(--color-indigo)] hover:bg-[var(--color-indigo-bright)] text-white px-6 py-3 rounded-full transition-colors disabled:opacity-50"
             >
               {loading ? "Publishing..." : "Publish post"}
             </button>
             <button
               type="button"
+              onClick={() => handleSubmit("draft")}
+              disabled={loading}
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase border border-[var(--color-rule)] text-[var(--color-ink)] px-6 py-3 rounded-full hover:bg-[var(--color-indigo-soft)] transition-colors disabled:opacity-50"
+            >
+              Save as draft
+            </button>
+            <button
+              type="button"
               onClick={() => navigate("/")}
-              className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase border border-stone-400 text-stone-600 px-6 py-3 rounded hover:bg-stone-100 transition"
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] px-6 py-3 rounded-full hover:bg-[var(--color-indigo-soft)] transition-colors"
             >
               Cancel
             </button>
