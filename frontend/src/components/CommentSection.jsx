@@ -60,11 +60,16 @@ export default function CommentSection({ postId }) {
       year: "numeric",
     });
 
-  if (loading) return <div className="text-stone-400">Loading comments...</div>;
+  if (loading)
+    return (
+      <div className="font-[var(--font-mono)] text-sm text-[var(--color-muted)]">
+        Loading comments...
+      </div>
+    );
 
   return (
-    <div className="mt-12 border-t border-stone-200 pt-10">
-      <h3 className="font-['Zilla_Slab'] text-2xl font-semibold text-stone-900 mb-6">
+    <div className="mt-12 border-t border-[var(--color-rule)] pt-10">
+      <h3 className="font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)] mb-6">
         Comments ({comments.length})
       </h3>
 
@@ -75,22 +80,22 @@ export default function CommentSection({ postId }) {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add a comment..."
-            className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-['Lora'] resize-none"
+            className="w-full px-4 py-3 border border-[var(--color-rule)] bg-white/50 rounded-xl focus:ring-2 focus:ring-[var(--color-indigo-soft)] focus:border-[var(--color-indigo)] outline-none font-[var(--font-body)] resize-none transition-colors"
             rows={3}
             required
           />
           <button
             type="submit"
-            className="font-['IBM_Plex_Mono'] text-xs tracking-[0.15em] uppercase bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg mt-2 transition"
+            className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase bg-[var(--color-indigo)] hover:bg-[var(--color-indigo-bright)] text-white px-5 py-2 rounded-full mt-2 transition-colors"
           >
             Post comment
           </button>
         </form>
       ) : (
-        <p className="text-stone-500 mb-6 font-['Lora'] italic">
+        <p className="text-[var(--color-muted)] mb-6 font-[var(--font-body)] italic">
           <Link
             to="/login"
-            className="text-indigo-600 hover:underline font-medium not-italic"
+            className="text-[var(--color-indigo)] hover:underline font-medium not-italic"
           >
             Log in
           </Link>{" "}
@@ -101,34 +106,34 @@ export default function CommentSection({ postId }) {
       {/* Comments List */}
       <div className="space-y-4">
         {comments.length === 0 && (
-          <p className="text-stone-400 font-['Lora'] italic">
+          <p className="text-[var(--color-muted)] font-[var(--font-body)] italic">
             No comments yet. Be the first!
           </p>
         )}
         {comments.map((comment) => (
           <div
             key={comment._id}
-            className="bg-white border border-stone-200 rounded-lg p-4 hover:shadow-sm transition"
+            className="bg-white/50 border border-[var(--color-rule)] rounded-xl p-4 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow"
           >
             <div className="flex justify-between items-start">
               <div>
-                <span className="font-['IBM_Plex_Mono'] text-sm font-medium text-stone-700">
+                <span className="font-[var(--font-mono)] text-sm font-medium text-[var(--color-ink)]">
                   {comment.author?.name || "Unknown"}
                 </span>
-                <span className="text-xs text-stone-400 ml-3">
+                <span className="text-xs text-[var(--color-muted)] ml-3">
                   {formatDate(comment.createdAt)}
                 </span>
               </div>
               {user?.id === comment.author?._id && (
                 <button
                   onClick={() => deleteComment(comment._id)}
-                  className="text-xs text-red-400 hover:text-red-600 transition"
+                  className="text-xs text-red-500 hover:text-red-700 transition-colors"
                 >
                   Delete
                 </button>
               )}
             </div>
-            <p className="font-['Lora'] text-stone-700 mt-1.5">
+            <p className="font-[var(--font-body)] text-[var(--color-ink)] mt-1.5">
               {comment.content}
             </p>
           </div>

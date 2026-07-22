@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
-import CommentSection from "../componets/CommentSection.jsx";
+import CommentSection from "../components/CommentSection";
 
 export default function PostDetail() {
   const { id } = useParams();
