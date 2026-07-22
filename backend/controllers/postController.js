@@ -12,7 +12,7 @@ export const createPost = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find()
+    const posts = await Post.find({ status: { $ne: "draft" } })
       .populate("author", "name email")
       .sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: posts.length, data: posts });

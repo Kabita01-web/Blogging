@@ -11,6 +11,11 @@ const PostSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please add content"],
   },
+  status: {
+    type: String,
+    enum: ["draft", "published"],
+    default: "published",
+  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
