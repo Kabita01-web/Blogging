@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -21,29 +22,20 @@ export default function Register() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateName = (name) => {
-    if (!name.trim()) return "Name is required";
-    return "";
-  };
-
+  const validateName = (name) => (!name.trim() ? "Name is required" : "");
   const validateEmail = (email) => {
     if (!email) return "Email is required";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return "Please enter a valid email";
-    }
     return "";
   };
-
   const validatePassword = (password) => {
     if (!password) return "Password is required";
     if (password.length < 6) return "Password must be at least 6 characters";
     return "";
   };
-
-  const validateConfirmPassword = (value) => {
-    if (value !== form.password) return "Passwords do not match";
-    return "";
-  };
+  const validateConfirmPassword = (value) =>
+    value !== form.password ? "Passwords do not match" : "";
 
   const handleBlur = (field) => () => {
     const validators = {
@@ -66,7 +58,6 @@ export default function Register() {
     return Object.values(next).every((msg) => !msg);
   };
 
-  // ✅ This is the handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
@@ -88,16 +79,16 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 md:p-10">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--color-paper)] px-4">
+      <div className="w-full max-w-md bg-white/60 rounded-2xl shadow-[var(--shadow-card)] p-8 md:p-10 border border-[var(--color-rule)]">
         <div className="text-center mb-8">
-          <p className="text-sm font-semibold text-indigo-600 uppercase tracking-wider">
+          <p className="font-[var(--font-mono)] text-xs font-medium text-[var(--color-indigo)] uppercase tracking-[0.15em]">
             Get started
           </p>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">
+          <h1 className="font-[var(--font-display)] text-2xl font-bold text-[var(--color-ink)] mt-2">
             Create your account
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="font-[var(--font-body)] text-[var(--color-muted)] text-sm mt-1">
             Takes less than a minute.
           </p>
         </div>
@@ -106,17 +97,16 @@ export default function Register() {
           {formError && (
             <div
               role="alert"
-              className="mb-5 rounded-md border border-red-300 bg-red-50 px-3.5 py-2.5 text-sm text-red-700"
+              className="mb-5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700 font-[var(--font-body)]"
             >
               {formError}
             </div>
           )}
 
-          {/* Name Field */}
           <div className="mb-4">
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block font-[var(--font-mono)] text-xs uppercase tracking-[0.1em] text-[var(--color-muted)] mb-1.5"
             >
               Full name
             </label>
@@ -127,22 +117,21 @@ export default function Register() {
               value={form.name}
               onChange={handleChange}
               onBlur={handleBlur("name")}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition ${
-                errors.name ? "border-red-500" : "border-gray-300"
+              className={`w-full px-4 py-2.5 border rounded-xl bg-white/50 font-[var(--font-body)] focus:ring-2 focus:ring-[var(--color-indigo-soft)] focus:border-[var(--color-indigo)] outline-none transition-colors ${
+                errors.name ? "border-red-400" : "border-[var(--color-rule)]"
               }`}
               placeholder="Ada Lovelace"
               autoComplete="name"
             />
             {errors.name && (
-              <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+              <p className="text-red-600 text-xs mt-1">{errors.name}</p>
             )}
           </div>
 
-          {/* Email Field */}
           <div className="mb-4">
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block font-[var(--font-mono)] text-xs uppercase tracking-[0.1em] text-[var(--color-muted)] mb-1.5"
             >
               Email
             </label>
@@ -153,22 +142,21 @@ export default function Register() {
               value={form.email}
               onChange={handleChange}
               onBlur={handleBlur("email")}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition ${
-                errors.email ? "border-red-500" : "border-gray-300"
+              className={`w-full px-4 py-2.5 border rounded-xl bg-white/50 font-[var(--font-body)] focus:ring-2 focus:ring-[var(--color-indigo-soft)] focus:border-[var(--color-indigo)] outline-none transition-colors ${
+                errors.email ? "border-red-400" : "border-[var(--color-rule)]"
               }`}
               placeholder="you@example.com"
               autoComplete="email"
             />
             {errors.email && (
-              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              <p className="text-red-600 text-xs mt-1">{errors.email}</p>
             )}
           </div>
 
-          {/* Password Field */}
           <div className="mb-4">
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block font-[var(--font-mono)] text-xs uppercase tracking-[0.1em] text-[var(--color-muted)] mb-1.5"
             >
               Password
             </label>
@@ -180,8 +168,10 @@ export default function Register() {
                 value={form.password}
                 onChange={handleChange}
                 onBlur={handleBlur("password")}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition pr-10 ${
-                  errors.password ? "border-red-500" : "border-gray-300"
+                className={`w-full px-4 py-2.5 border rounded-xl bg-white/50 font-[var(--font-body)] focus:ring-2 focus:ring-[var(--color-indigo-soft)] focus:border-[var(--color-indigo)] outline-none transition-colors pr-10 ${
+                  errors.password
+                    ? "border-red-400"
+                    : "border-[var(--color-rule)]"
                 }`}
                 placeholder="At least 6 characters"
                 autoComplete="new-password"
@@ -189,21 +179,21 @@ export default function Register() {
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? "🙈" : "👁️"}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {errors.password && (
-              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+              <p className="text-red-600 text-xs mt-1">{errors.password}</p>
             )}
           </div>
 
-          {/* Confirm Password Field */}
           <div className="mb-6">
             <label
               htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block font-[var(--font-mono)] text-xs uppercase tracking-[0.1em] text-[var(--color-muted)] mb-1.5"
             >
               Confirm password
             </label>
@@ -214,14 +204,16 @@ export default function Register() {
               value={form.confirmPassword}
               onChange={handleChange}
               onBlur={handleBlur("confirmPassword")}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition ${
-                errors.confirmPassword ? "border-red-500" : "border-gray-300"
+              className={`w-full px-4 py-2.5 border rounded-xl bg-white/50 font-[var(--font-body)] focus:ring-2 focus:ring-[var(--color-indigo-soft)] focus:border-[var(--color-indigo)] outline-none transition-colors ${
+                errors.confirmPassword
+                  ? "border-red-400"
+                  : "border-[var(--color-rule)]"
               }`}
               placeholder="Re-enter your password"
               autoComplete="new-password"
             />
             {errors.confirmPassword && (
-              <p className="text-red-500 text-xs mt-1">
+              <p className="text-red-600 text-xs mt-1">
                 {errors.confirmPassword}
               </p>
             )}
@@ -230,16 +222,16 @@ export default function Register() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[var(--color-indigo)] hover:bg-[var(--color-indigo-bright)] text-white font-[var(--font-body)] font-medium py-3 px-4 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
 
-          <p className="mt-6 text-center text-sm text-stone-500">
+          <p className="mt-6 text-center font-[var(--font-body)] text-sm text-[var(--color-muted)]">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-indigo-500 hover:text-indigo-600 active:text-indigo-700 font-medium transition-colors"
+              className="text-[var(--color-indigo)] hover:text-[var(--color-indigo-bright)] font-medium transition-colors"
             >
               Log in
             </Link>
