@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import RichTextEditor from "../components/RichTextEditor";
+import ImageUpload from "../components/ImageUpload";
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ export default function CreatePost() {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [coverImage, setCoverImage] = useState("");
 
   const handleSubmit = async (status) => {
     if (!title.trim() || !content.trim()) {
@@ -19,7 +21,7 @@ export default function CreatePost() {
     setLoading(true);
     setError("");
     try {
-      await api.post("/posts", { title, content, status });
+      await api.post("/posts", { title, content, status, coverImage });
       navigate(status === "draft" ? "/dashboard" : "/");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create post");
@@ -46,7 +48,9 @@ export default function CreatePost() {
               {error}
             </div>
           )}
-
+          <div className="mb-6">
+            <ImageUpload value={coverImage} onUpload={setCoverImage} />
+          </div>
           <div className="mb-6">
             <label className="block font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] mb-2">
               Title

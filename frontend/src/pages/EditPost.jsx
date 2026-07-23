@@ -9,7 +9,12 @@ export default function EditPost() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [original, setOriginal] = useState({ title: "", content: "" });
+  const [status, setStatus] = useState("published");
+  const [original, setOriginal] = useState({
+    title: "",
+    content: "",
+    status: "published",
+  });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,7 +28,10 @@ export default function EditPost() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const isDirty = title !== original.title || content !== original.content;
+  const isDirty =
+    title !== original.title ||
+    content !== original.content ||
+    status !== original.status;
 
   useEffect(() => {
     const handler = (e) => {
@@ -49,7 +57,12 @@ export default function EditPost() {
       const { data } = await api.get(`/posts/${id}`);
       setTitle(data.data.title);
       setContent(data.data.content);
-      setOriginal({ title: data.data.title, content: data.data.content });
+      setStatus(data.data.status || "published");
+      setOriginal({
+        title: data.data.title,
+        content: data.data.content,
+        status: data.data.status || "published",
+      });
     } catch (err) {
       setLoadError(true);
     } finally {
@@ -57,8 +70,7 @@ export default function EditPost() {
     }
   }, [id]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSave = async (nextStatus) => {
     if (!title.trim() || !content.trim()) {
       setFormError("Title and content are required");
       return;
@@ -67,8 +79,8 @@ export default function EditPost() {
     setSaving(true);
     setFormError("");
     try {
-      await api.put(`/posts/${id}`, { title, content });
-      navigate(`/posts/${id}`);
+      await api.put(`/posts/${id}`, { title, content, status: nextStatus });
+      navigate(nextStatus === "draft" ? "/dashboard" : `/posts/${id}`);
     } catch (err) {
       setFormError(err.response?.data?.message || "Failed to update post");
     } finally {
@@ -78,7 +90,7 @@ export default function EditPost() {
 
   const handleCancel = () => {
     if (isDirty && !window.confirm("Discard unsaved changes?")) return;
-    navigate(`/posts/${id}`);
+    navigate(status === "draft" ? "/dashboard" : `/posts/${id}`);
   };
 
   const wordCount = content
@@ -142,14 +154,13 @@ export default function EditPost() {
 
   return (
     <div className="bg-[var(--color-paper)]">
-      {/* status bar — sticky to the editor's scroll area, not the viewport */}
       <div className="sticky top-16 z-10 bg-[var(--color-paper)]/90 backdrop-blur border-b border-[var(--color-rule)]">
         <div className="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between">
           <button
             onClick={handleCancel}
             className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors"
           >
-            ← Back to post
+            ← Back
           </button>
           <span
             className={`font-[var(--font-mono)] text-[11px] tracking-[0.15em] uppercase ${
@@ -167,15 +178,26 @@ export default function EditPost() {
 
       <div className="max-w-4xl mx-auto px-6 pt-10 pb-10">
         <div className="border-b border-[var(--color-rule)] pb-6 mb-10">
-          <p className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-indigo)] mb-1">
-            Editing
-          </p>
+          <div className="flex items-center gap-3 mb-1">
+            <p className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-indigo)]">
+              Editing
+            </p>
+            <span
+              className={`font-[var(--font-mono)] text-[10px] uppercase tracking-[0.1em] px-2 py-0.5 rounded-full ${
+                status === "draft"
+                  ? "bg-[var(--color-indigo-soft)] text-[var(--color-indigo)]"
+                  : "bg-green-100 text-green-700"
+              }`}
+            >
+              {status === "draft" ? "Draft" : "Published"}
+            </span>
+          </div>
           <p className="font-[var(--font-body)] italic text-[var(--color-muted)]">
-            Changes save only when you publish the update below
+            Changes save only when you publish or save the update below
           </p>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => e.preventDefault()}>
           {formError && (
             <div className="mb-8 px-4 py-3 bg-red-50 border border-red-200 text-red-700 font-[var(--font-body)] text-sm rounded-xl">
               {formError}
@@ -204,19 +226,31 @@ export default function EditPost() {
             {wordCount} {wordCount === 1 ? "word" : "words"}
           </p>
 
-          {/* action bar — normal flow, sits right after the editor, no overlap with Footer */}
-          <div className="flex gap-4 mt-10 pt-6 border-t border-[var(--color-rule)]">
+          <div className="flex gap-3 mt-10 pt-6 border-t border-[var(--color-rule)]">
             <button
-              type="submit"
-              disabled={saving || !isDirty}
+              type="button"
+              onClick={() => handleSave("published")}
+              disabled={saving}
               className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase bg-[var(--color-indigo)] hover:bg-[var(--color-indigo-bright)] text-white px-6 py-3 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {saving ? "Saving…" : "Update post"}
+              {saving
+                ? "Saving…"
+                : status === "draft"
+                  ? "Publish post"
+                  : "Update post"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSave("draft")}
+              disabled={saving}
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase border border-[var(--color-rule)] text-[var(--color-ink)] px-6 py-3 rounded-full hover:bg-[var(--color-indigo-soft)] transition-colors disabled:opacity-40"
+            >
+              Save as draft
             </button>
             <button
               type="button"
               onClick={handleCancel}
-              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase border border-[var(--color-rule)] text-[var(--color-ink)] px-6 py-3 rounded-full hover:bg-[var(--color-indigo-soft)] transition-colors"
+              className="font-[var(--font-mono)] text-xs tracking-[0.15em] uppercase text-[var(--color-muted)] px-6 py-3 rounded-full hover:bg-[var(--color-indigo-soft)] transition-colors"
             >
               Cancel
             </button>
