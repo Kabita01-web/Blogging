@@ -87,3 +87,13 @@ body {
   outline: none;
   box-shadow: none;
 }
+/* Footer link underline — light variant for dark background */
+.footer-link {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s ease;
+}
+.footer-link:hover {
+  color: var(--color-indigo-bright);
+}
