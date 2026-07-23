@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -11,10 +12,13 @@ export default function Navbar() {
     { to: "/", label: "Home" },
     { to: "/about", label: "About" },
     { to: "/contact", label: "Contact" },
+    { to: "/blogs", label: "All Blogs" },
   ];
 
+  const { user, logout } = useAuth();
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    logout();
     navigate("/login");
   };
 
