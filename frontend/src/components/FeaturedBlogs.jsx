@@ -1,11 +1,23 @@
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
-/**
- * Layered card grid with elevation, hover lift, and a floating category
- * chip on each card — matches the vibrant/modern direction.
- */
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+const card = {
+  hidden: { opacity: 0, y: 24 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
 export default function FeaturedBlogs({ posts = [] }) {
-  if (!posts.length) {
+  const shown = posts.slice(0, 4);
+
+  if (!shown.length) {
     return (
       <section className="max-w-6xl mx-auto px-6 py-16 text-center">
         <p className="font-[var(--font-body)] text-[var(--color-muted)]">
@@ -17,33 +29,50 @@ export default function FeaturedBlogs({ posts = [] }) {
 
   return (
     <section className="max-w-6xl mx-auto px-6 py-16">
-      <h2 className="font-[var(--font-display)] text-2xl font-bold mb-10">
-        More stories
-      </h2>
-      <Link
-        to="/blogs"
-        className=" ink-link font-[var(--font-mono)] text-xs uppercase tracking-[0.1em] text-[var(--color-indigo)]"
+      <div className="flex items-center justify-between mb-10">
+        <h2 className="font-[var(--font-display)] text-2xl font-bold">
+          More stories
+        </h2>
+        <Link
+          to="/blogs"
+          className="ink-link font-[var(--font-mono)] text-xs uppercase tracking-[0.1em] text-[var(--color-indigo)]"
+        >
+          View all posts →
+        </Link>
+      </div>
+
+      <motion.div
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-80px" }}
+        className="grid grid-cols-2 md:grid-cols-4 gap-6"
       >
-        View all posts →
-      </Link>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {posts.map((post) => {
+        {shown.map((post) => {
+          {
+            /* ...rest stays exactly the same, just posts.map → shown.map */
+          }
           const image = post.coverImage || post.image || post.thumbnail;
           const category = post.category || post.tags?.[0] || "Story";
           const link = `/posts/${post.slug || post._id}`;
 
           return (
-            <article
+            <motion.article
               key={post._id}
-              className="group rounded-2xl bg-white shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow duration-300 overflow-hidden"
+              variants={card}
+              whileHover={{ y: -6 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="rounded-2xl bg-white shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] overflow-hidden"
             >
               <Link to={link} className="block relative">
                 <div className="aspect-[3/4] overflow-hidden bg-[var(--color-indigo-soft)]">
                   {image && (
-                    <img
+                    <motion.img
                       src={image}
                       alt=""
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover"
+                      whileHover={{ scale: 1.08 }}
+                      transition={{ duration: 0.4 }}
                     />
                   )}
                 </div>
@@ -58,16 +87,11 @@ export default function FeaturedBlogs({ posts = [] }) {
                     {post.title}
                   </Link>
                 </h3>
-                <div className="flex items-center justify-between mb-10">
-                  <h2 className="font-[var(--font-display)] text-2xl font-bold">
-                    More stories
-                  </h2>
-                </div>
               </div>
-            </article>
+            </motion.article>
           );
         })}
-      </div>
+      </motion.div>
     </section>
   );
 }
