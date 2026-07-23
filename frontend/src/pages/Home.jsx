@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import Hero from "../components/Hero";
+import AboutSection from "../pages/Aboutus";
+import CategoriesSection from "../components/CategoriesSection";
 import FeaturedBlogs from "../components/FeaturedBlogs";
+import StatsBar from "../components/StatsBar";
+import NewsletterSection from "../components/NewsletterSection";
+import ContactCTA from "../components/ContactCTA";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -15,21 +20,19 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-      <div className="h-[80vh] flex items-center justify-center font-[var(--font-mono)] text-sm text-[var(--color-muted)]">
-        Loading…
-      </div>
-    );
-  }
-
-  const featured = posts.slice(0, 3);
-  const rest = posts.slice(3);
-
   return (
     <>
-      <Hero posts={featured} />
-      <FeaturedBlogs posts={rest} />
+      <Hero />
+      <AboutSection />
+      {!loading && (
+        <>
+          <FeaturedBlogs posts={posts} />
+          <CategoriesSection posts={posts} />
+          <StatsBar posts={posts} />
+        </>
+      )}
+      <NewsletterSection />
+      <ContactCTA />
     </>
   );
 }
