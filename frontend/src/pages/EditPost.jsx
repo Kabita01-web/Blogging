@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import RichTextEditor from "../components/RichTextEditor";
+import ImageUpload from "../components/ImageUpload";
 
 export default function EditPost() {
   const { id } = useParams();
@@ -15,7 +16,7 @@ export default function EditPost() {
     content: "",
     status: "published",
   });
-
+  const [coverImage, setCoverImage] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -31,7 +32,8 @@ export default function EditPost() {
   const isDirty =
     title !== original.title ||
     content !== original.content ||
-    status !== original.status;
+    status !== original.status ||
+    coverImage !== original.coverImage;
 
   useEffect(() => {
     const handler = (e) => {
@@ -58,10 +60,12 @@ export default function EditPost() {
       setTitle(data.data.title);
       setContent(data.data.content);
       setStatus(data.data.status || "published");
+      setCoverImage(data.data.coverImage || "");
       setOriginal({
         title: data.data.title,
         content: data.data.content,
         status: data.data.status || "published",
+        coverImage: data.data.coverImage || "",
       });
     } catch (err) {
       setLoadError(true);
@@ -79,7 +83,12 @@ export default function EditPost() {
     setSaving(true);
     setFormError("");
     try {
-      await api.put(`/posts/${id}`, { title, content, status: nextStatus });
+      await api.put(`/posts/${id}`, {
+        title,
+        content,
+        status: nextStatus,
+        coverImage,
+      });
       navigate(nextStatus === "draft" ? "/dashboard" : `/posts/${id}`);
     } catch (err) {
       setFormError(err.response?.data?.message || "Failed to update post");
@@ -213,7 +222,9 @@ export default function EditPost() {
             required
             className="w-full resize-none overflow-hidden bg-transparent outline-none font-[var(--font-display)] font-semibold text-4xl md:text-5xl text-[var(--color-ink)] placeholder-[var(--color-rule)] leading-tight mb-10"
           />
-
+          <div className="mb-8">
+            <ImageUpload value={coverImage} onUpload={setCoverImage} />
+          </div>
           <div className="mb-4">
             <RichTextEditor
               value={content}
