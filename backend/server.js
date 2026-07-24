@@ -5,6 +5,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
 import commentRoutes from "./routes/comments.js";
+import uploadRoutes from "./routes/upload.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.get("/test", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/posts", commentRoutes);
+app.use("/api/upload", uploadRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
