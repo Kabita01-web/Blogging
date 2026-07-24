@@ -31,6 +31,10 @@ const PostSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  coverImage: {
+    type: String,
+    default: "",
+  },
 });
 
 export default mongoose.model("Post", PostSchema);
