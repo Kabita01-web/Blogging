@@ -169,14 +169,18 @@ export default function Blogs() {
           >
             <Link
               to={`/posts/${featured._id}`}
-              className="block aspect-[4/3] rounded-2xl overflow-hidden bg-[var(--color-indigo-soft)] shadow-[var(--shadow-card)]"
+              className="block rounded-2xl overflow-hidden bg-[var(--color-indigo-soft)] shadow-[var(--shadow-card)] max-h-[500px]"
             >
-              {(featured.coverImage || featured.image) && (
+              {featured.coverImage || featured.image ? (
                 <img
                   src={featured.coverImage || featured.image}
                   alt=""
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
+              ) : (
+                <div className="aspect-[4/3] flex items-center justify-center font-[var(--font-mono)] text-xs uppercase tracking-[0.15em] text-[var(--color-indigo)]">
+                  Cover image
+                </div>
               )}
             </Link>
             <div>
